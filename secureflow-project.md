@@ -142,28 +142,34 @@ Ogni scelta tecnologica non ovvia viene documentata con un ADR: un documento bre
 
 ```
 secureflow/
+├── README.md
+├── docker-compose.yml
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml
 │       └── cd.yml
-├── gateway-service/
-│   ├── src/
-│   ├── Dockerfile
-│   └── pom.xml
-├── core-service/
-│   ├── src/
-│   ├── Dockerfile
-│   └── pom.xml
+├── backend/
+│   ├── gateway-service/
+│   │   ├── src/
+│   │   ├── Dockerfile
+│   │   └── pom.xml
+│   └── core-service/
+│       ├── src/
+│       ├── Dockerfile
+│       └── pom.xml
 ├── frontend/
 │   ├── src/
 │   ├── Dockerfile
 │   └── package.json
-├── infra/
-│   ├── docker-compose.yml
+├── devops/
+│   ├── mysql/
+│   │   └── init.sql
 │   ├── nginx/
 │   │   └── nginx.conf
-│   └── keycloak/
-│       └── realm-export.json
+│   ├── keycloak/
+│   │   └── realm-export.json
+│   └── flyway/
+│       └── sql/
 ├── docs/
 │   ├── architecture.md
 │   └── adr/
@@ -171,7 +177,7 @@ secureflow/
 │       ├── 002-keycloak-over-custom-auth.md
 │       ├── 003-kafka-for-audit-events.md
 │       └── 004-redis-sliding-window-rate-limit.md
-└── README.md
+└── secureflow-project.md
 ```
 
 ---

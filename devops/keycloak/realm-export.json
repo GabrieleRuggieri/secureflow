@@ -1,0 +1,103 @@
+{
+  "realm": "secureflow",
+  "displayName": "SecureFlow",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "clients": [
+    {
+      "clientId": "secureflow-frontend",
+      "name": "SecureFlow Dashboard",
+      "description": "Next.js frontend - PKCE flow",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://localhost"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000/*##http://localhost/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "tenant-id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "tenantId",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "tenantId",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "secureflow-core",
+      "name": "SecureFlow Core Service",
+      "description": "Core Service - Client Credentials flow (M2M)",
+      "enabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "redirectUris": [],
+      "webOrigins": [],
+      "secret": "core-service-secret-change-in-production",
+      "protocolMappers": []
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Full administrative access"
+      },
+      {
+        "name": "user",
+        "description": "Standard user access"
+      }
+    ]
+  },
+  "defaultRoles": ["user"],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@secureflow.local",
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": true
+        }
+      ],
+      "realmRoles": ["admin", "user"],
+      "attributes": {
+        "tenantId": ["default-tenant"]
+      }
+    }
+  ]
+}

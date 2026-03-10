@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureFlow — Fasi di Sviluppo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <div class="logo-icon">SF</div>
+      <span class="logo-text">SecureFlow</span>
+      <span class="logo-tag">Dev Tracker</span>
+    </a>
+    <div class="global-progress">
+      <span class="global-progress-text">Progresso totale</span>
+      <div class="global-progress-bar">
+        <div class="global-progress-fill" id="globalFill" style="width: 0%"></div>
+      </div>
+      <span class="global-progress-pct" id="globalPct">0%</span>
+      <button class="reset-btn" onclick="resetAll()" title="Resetta tutto">Reset</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <section class="hero">
+    <h1>Fasi di Sviluppo</h1>
+    <p>Traccia il progresso di ogni fase del progetto SecureFlow. Le attività completate vengono salvate automaticamente nel browser.</p>
+    <div class="stack-badges">
+      <span class="badge">Spring WebFlux</span>
+      <span class="badge">Spring Boot 3.5</span>
+      <span class="badge">Keycloak 26</span>
+      <span class="badge">MySQL 8.4</span>
+      <span class="badge">Redis 8</span>
+      <span class="badge">Kafka 4.x</span>
+      <span class="badge">Nginx</span>
+      <span class="badge">Next.js 16</span>
+      <span class="badge">Docker</span>
+      <span class="badge">GitHub Actions</span>
+    </div>
+  </section>
+
+  <nav class="phase-nav" id="phaseNav"></nav>
+
+  <div id="phases"></div>
+
+</main>
+
+<footer class="footer">
+  SecureFlow — Multi-Tenant Authorization Platform &middot; Progresso salvato in localStorage
+</footer>
+
+<script>
+const PHASES = [
+  {
+    id: "fase-1",
+    num: 1,
+    title: "Infrastruttura locale",
+    objective: "Tutti i servizi di supporto funzionanti in Docker, raggiungibili e configurati",
+    result: "docker-compose up porta online l'intero stack di supporto, Keycloak è accessibile e configurato, il database ha lo schema base.",
+    tasks: [
+      { id: "1-1", text: "Scrivere docker-compose.yml con MySQL, Redis, Kafka (KRaft), Keycloak e Nginx" },
+      { id: "1-2", text: "Configurare Keycloak: realm secureflow, client frontend (PKCE), client Core Service (client credentials), mapper custom per tenantId nel JWT" },
+      { id: "1-3", text: "Esportare la configurazione Keycloak in realm-export.json" },
+      { id: "1-4", text: "Configurare Flyway con la prima migration: schema per tenant, user, role, permission" },
+      { id: "1-5", text: "Verificare la connettività tra tutti i container" }
+    ]
+  },
+  {
+    id: "fase-2",
+    num: 2,
+    title: "Core Service: modello dati e RBAC engine",
+    objective: "Il cuore del sistema — tenant isolation e autorizzazione granulare",
+    result: "Un utente autenticato può creare tenant, assegnare ruoli con permessi granulari, e il sistema impedisce l'accesso cross-tenant a livello di database.",
+    tasks: [
+      { id: "2-1", text: "Implementare le entità JPA: Tenant, User, Role, Permission, RoleAssignment, ApiKey" },
+      { id: "2-2", text: "Implementare il Hibernate Filter per tenant isolation (ogni query filtrata per tenant_id)" },
+      { id: "2-3", text: "Sviluppare il RBAC engine: AuthorizationManager custom in Spring Security 6" },
+      { id: "2-4", text: "Creare l'annotation custom @RequiresPermission(\"resource:action\") e il relativo aspect" },
+      { id: "2-5", text: "Implementare i primi endpoint REST: CRUD per tenant, utenti, ruoli e permessi" },
+      { id: "2-6", text: "Scrivere i test di integrazione con Testcontainers per isolamento tra tenant" }
+    ]
+  },
+  {
+    id: "fase-3",
+    num: 3,
+    title: "Core Service: API key management e webhook",
+    objective: "Ciclo di vita completo delle API key e notifica eventi verso sistemi esterni",
+    result: "Un tenant può generare API key con scadenza e permessi specifici, revocarle, ruotarle, e ricevere notifiche su URL configurabili.",
+    tasks: [
+      { id: "3-1", text: "Implementare generazione API key: hash SHA-256, prefisso leggibile, scadenza configurabile" },
+      { id: "3-2", text: "Implementare revoca e rotazione delle API key" },
+      { id: "3-3", text: "Sviluppare il webhook system: registrazione URL di callback per tenant, delivery asincrona con retry esponenziale e dead letter" },
+      { id: "3-4", text: "Aggiungere le Flyway migration per le nuove tabelle" },
+      { id: "3-5", text: "Test di integrazione per il ciclo di vita delle key e il delivery dei webhook" }
+    ]
+  },
+  {
+    id: "fase-4",
+    num: 4,
+    title: "Gateway Service: pipeline reattiva",
+    objective: "Gateway non bloccante che processa ogni richiesta in ingresso",
+    result: "Il gateway valida, limita e traccia ogni richiesta in modo completamente non bloccante. Il rate limiter è preciso anche con chiamate concorrenti.",
+    tasks: [
+      { id: "4-1", text: "Scaffolding del progetto Spring WebFlux" },
+      { id: "4-2", text: "Implementare la catena di filtri reattiva: estrazione API key → validazione → rate limit → forwarding" },
+      { id: "4-3", text: "Implementare rate limiting con sliding window in Lua script atomico su Redis" },
+      { id: "4-4", text: "Implementare circuit breaker con Resilience4j reactive verso il Core Service" },
+      { id: "4-5", text: "Propagare il security context nel reactive pipeline con ReactiveSecurityContextHolder" },
+      { id: "4-6", text: "Pubblicare l'evento di audit su Kafka al termine di ogni richiesta (fire-and-forget)" },
+      { id: "4-7", text: "Test con richieste concorrenti per verificare il rate limiter sotto carico" }
+    ]
+  },
+  {
+    id: "fase-5",
+    num: 5,
+    title: "Audit log: Kafka consumer e SSE streaming",
+    objective: "Pipeline asincrona end-to-end dall'evento al client",
+    result: "Ogni richiesta al gateway genera un evento visibile in streaming su SSE, persistito su database e consultabile con filtri.",
+    tasks: [
+      { id: "5-1", text: "Implementare Kafka consumer nel Core Service: lettura topic audit-events, persistenza su MySQL, retry e dead letter topic" },
+      { id: "5-2", text: "Implementare endpoint SSE in Spring WebFlux per streaming eventi audit in tempo reale" },
+      { id: "5-3", text: "Aggiungere filtri all'endpoint SSE: per tenant, tipo evento, intervallo temporale" },
+      { id: "5-4", text: "Test del flusso completo: richiesta gateway → evento Kafka → persistenza → streaming SSE" }
+    ]
+  },
+  {
+    id: "fase-6",
+    num: 6,
+    title: "CI/CD e production hardening",
+    objective: "Pipeline automatizzata, osservabilità e documentazione operativa",
+    result: "Un nuovo contributor può clonare il repo, eseguire docker-compose up, e avere l'intero stack funzionante. Ogni PR è validata automaticamente.",
+    tasks: [
+      { id: "6-1", text: "Scrivere ci.yml: compilazione, test con Testcontainers, build immagini Docker su ogni PR" },
+      { id: "6-2", text: "Scrivere cd.yml: push immagini su Docker Hub con tag Git SHA su merge in main" },
+      { id: "6-3", text: "Aggiungere health check endpoints (/actuator/health) con readiness e liveness probe" },
+      { id: "6-4", text: "Configurare structured logging in JSON con Logback" },
+      { id: "6-5", text: "Aggiungere Dockerfile multi-stage ottimizzati per produzione" },
+      { id: "6-6", text: "Scrivere gli Architecture Decision Records (ADR)" },
+      { id: "6-7", text: "Scrivere il README professionale con architettura, prerequisiti, setup" },
+      { id: "6-8", text: "Generare documentazione OpenAPI con SpringDoc" }
+    ]
+  },
+  {
+    id: "fase-7",
+    num: 7,
+    title: "Frontend (Next.js 16)",
+    objective: "Interfaccia di amministrazione completa e professionale",
+    result: "Interfaccia completa che copre tutti i casi d'uso della piattaforma, con autenticazione reale via Keycloak e comunicazione con entrambi i servizi backend.",
+    tasks: [
+      { id: "7-1", text: "Setup Next.js 16 con App Router, TypeScript, Tailwind CSS" },
+      { id: "7-2", text: "Implementare flusso autenticazione con Keycloak (PKCE): login, refresh token, logout, protezione route" },
+      { id: "7-3", text: "Dashboard principale: metriche aggregate (request rate, error rate, latenza) con grafici" },
+      { id: "7-4", text: "Audit log viewer: tabella paginata con filtri e toggle streaming SSE in tempo reale" },
+      { id: "7-5", text: "Tenant management: lista, creazione, configurazione limiti di rate" },
+      { id: "7-6", text: "RBAC editor: visualizzazione ad albero di ruoli e permessi, assegnazione a utenti" },
+      { id: "7-7", text: "API key management: generazione (visualizzazione one-time), lista, revoca, rotazione" },
+      { id: "7-8", text: "Containerizzazione: Dockerfile multi-stage con build Next.js e serving tramite Nginx" }
+    ]
+  }
+];
+
+const STORAGE_KEY = "secureflow-progress";
+
+function loadState() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch { return {}; }
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function getPhaseStats(phase, state) {
+  const total = phase.tasks.length;
+  const done = phase.tasks.filter(t => state[t.id]).length;
+  return { total, done, pct: total ? Math.round((done / total) * 100) : 0 };
+}
+
+function getGlobalStats(state) {
+  let total = 0, done = 0;
+  PHASES.forEach(p => {
+    total += p.tasks.length;
+    done += p.tasks.filter(t => state[t.id]).length;
+  });
+  return { total, done, pct: total ? Math.round((done / total) * 100) : 0 };
+}
+
+function renderCheckSvg() {
+  return `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6L5 8.5L9.5 3.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+function renderChevron() {
+  return `<svg class="phase-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+function renderProgressRing(pct) {
+  const r = 14;
+  const c = 2 * Math.PI * r;
+  const offset = c - (pct / 100) * c;
+  return `<svg class="phase-progress-ring" viewBox="0 0 36 36">
+    <circle class="bg" cx="18" cy="18" r="${r}"/>
+    <circle class="fg" cx="18" cy="18" r="${r}" stroke-dasharray="${c}" stroke-dashoffset="${offset}"/>
+  </svg>`;
+}
+
+function getOpenPhases() {
+  return Array.from(document.querySelectorAll(".phase.open")).map(el => el.dataset.phase);
+}
+
+function render() {
+  const state = loadState();
+  const openPhases = getOpenPhases();
+  const container = document.getElementById("phases");
+  const nav = document.getElementById("phaseNav");
+  const globalStats = getGlobalStats(state);
+
+  document.getElementById("globalFill").style.width = globalStats.pct + "%";
+  document.getElementById("globalPct").textContent = globalStats.pct + "%";
+
+  let navHTML = "";
+  let phasesHTML = "";
+
+  PHASES.forEach(phase => {
+    const stats = getPhaseStats(phase, state);
+    const isComplete = stats.done === stats.total;
+    const isInProgress = stats.done > 0 && !isComplete;
+    const statusClass = isComplete ? "done" : isInProgress ? "in-progress" : "";
+
+    navHTML += `<button class="phase-nav-btn ${statusClass}" onclick="scrollToPhase('${phase.id}')">
+      <span class="dot"></span>Fase ${phase.num}
+    </button>`;
+
+    const classes = ["phase", openPhases.includes(phase.id) && "open", isComplete && "completed"].filter(Boolean).join(" ");
+    phasesHTML += `
+    <article class="${classes}" id="${phase.id}" data-phase="${phase.id}">
+      <div class="phase-header" onclick="togglePhase('${phase.id}')">
+        <div class="phase-number">${phase.num}</div>
+        <div class="phase-info">
+          <div class="phase-title">Fase ${phase.num} — ${phase.title}</div>
+          <div class="phase-objective">${phase.objective}</div>
+        </div>
+        <div class="phase-meta">
+          <span class="phase-counter">${stats.done}/${stats.total}</span>
+          ${renderProgressRing(stats.pct)}
+        </div>
+        ${renderChevron()}
+      </div>
+      <div class="phase-body">
+        <div class="phase-body-inner">
+          <div class="phase-result"><strong>Risultato atteso:</strong> ${phase.result}</div>
+          <div class="tasks">
+            ${phase.tasks.map(task => {
+              const checked = state[task.id] ? "checked" : "";
+              const doneClass = state[task.id] ? "done" : "";
+              return `<label class="task ${doneClass}">
+                <div class="task-checkbox">
+                  <input type="checkbox" ${checked} onchange="toggleTask('${task.id}')">
+                  <div class="check-box">${renderCheckSvg()}</div>
+                </div>
+                <span class="task-label">${task.text}</span>
+              </label>`;
+            }).join("")}
+          </div>
+        </div>
+      </div>
+    </article>`;
+  });
+
+  nav.innerHTML = navHTML;
+  container.innerHTML = phasesHTML;
+}
+
+function toggleTask(taskId) {
+  const state = loadState();
+  state[taskId] = !state[taskId];
+  saveState(state);
+  render();
+}
+
+function togglePhase(phaseId) {
+  const el = document.querySelector(`[data-phase="${phaseId}"]`);
+  el.classList.toggle("open");
+}
+
+function scrollToPhase(phaseId) {
+  const el = document.getElementById(phaseId);
+  el.classList.add("open");
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function resetAll() {
+  if (confirm("Vuoi davvero resettare tutto il progresso?")) {
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>
