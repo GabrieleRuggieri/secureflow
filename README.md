@@ -26,7 +26,7 @@ secureflow/
 cp devops/.env.example .env
 
 # Avvia lo stack (MySQL, Redis, Kafka, Keycloak, Nginx)
-docker compose up -d
+docker compose up -d --build
 
 # (Opzionale) Migration Flyway + topic Kafka
 docker compose --profile init up -d

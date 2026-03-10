@@ -47,11 +47,11 @@ services:
       - "9092:9092"
       - "9093:9093"
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+      test: ["CMD", "/opt/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
+      interval: 20s
+      timeout: 30s
+      retries: 10
+      start_period: 120s
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.0
