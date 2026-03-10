@@ -23,7 +23,7 @@ secureflow/
 
 ```bash
 # Copia le variabili d'ambiente (nella root del progetto)
-cp devops/.env.example .env
+cp .env.example .env
 
 # Avvia lo stack (MySQL, Redis, Kafka, Keycloak, Nginx)
 docker compose up -d --build
