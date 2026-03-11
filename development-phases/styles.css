@@ -4,7 +4,8 @@
   --surface-hover: #1e2028;
   --border: #2a2d38;
   --border-active: #4f46e5;
-  --text: #e4e5e9;
+  /* --text: #e4e5e9; */
+  --text: #fff;
   --text-muted: #8b8d97;
   --text-dim: #5c5e69;
   --accent: #6366f1;
