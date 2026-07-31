@@ -3,7 +3,7 @@ spring:
   application:
     name: core-service
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/secureflow}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/secureflow?allowPublicKeyRetrieval=true&useSSL=false}
     username: ${SPRING_DATASOURCE_USERNAME:secureflow}
     password: ${SPRING_DATASOURCE_PASSWORD:secureflow}
     driver-class-name: com.mysql.cj.jdbc.Driver

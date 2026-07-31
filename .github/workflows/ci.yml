@@ -71,10 +71,14 @@ jobs:
           docker compose up -d mysql redis kafka
       - name: Wait for MySQL
         run: |
-          for i in $(seq 1 30); do
-            docker compose exec -T mysql mysqladmin ping -h localhost --silent && exit 0
+          for i in $(seq 1 60); do
+            if docker compose exec -T mysql mysqladmin ping -h localhost -usecureflow -psecureflow --silent; then
+              docker compose exec -T mysql mysql -usecureflow -psecureflow -e "SELECT 1" >/dev/null 2>&1 && exit 0
+            fi
             sleep 2
           done
+          echo "MySQL not ready"
+          docker compose logs mysql
           exit 1
       - name: Flyway migrate
         run: docker compose --profile init run --rm flyway

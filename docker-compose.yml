@@ -65,7 +65,7 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
       KC_DB: mysql
-      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak
+      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak?allowPublicKeyRetrieval=true&useSSL=false
       KC_DB_USERNAME: ${MYSQL_USER:-secureflow}
       KC_DB_PASSWORD: ${MYSQL_PASSWORD:-secureflow}
       KC_HOSTNAME: localhost
@@ -112,7 +112,7 @@ services:
     volumes:
       - ./devops/flyway/sql:/flyway/sql
     environment:
-      FLYWAY_URL: jdbc:mysql://mysql:3306/secureflow
+      FLYWAY_URL: jdbc:mysql://mysql:3306/secureflow?allowPublicKeyRetrieval=true&useSSL=false
       FLYWAY_USER: ${MYSQL_USER:-secureflow}
       FLYWAY_PASSWORD: ${MYSQL_PASSWORD:-secureflow}
       FLYWAY_BASELINE_ON_MIGRATE: "true"
