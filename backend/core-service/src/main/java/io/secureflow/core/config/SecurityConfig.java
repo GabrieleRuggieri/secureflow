@@ -1,26 +1,25 @@
 /*
  * SecurityConfig — Configurazione Spring Security per il Core Service.
  *
- * Tre filter chain: /api/** (JWT + tenant filter), /actuator/** (permitAll per health),
- * default (JWT per altre route). OAuth2 Resource Server con JWT da Keycloak. TenantContextFilter
- * prima del BearerToken per avere il tenant dopo la validazione del token. Method security
- * con PermissionEvaluator custom per RBAC.
+ * Chain /api/**: JWT Keycloak, poi TenantContextFilter, poi JwtUserBootstrapFilter.
  */
 package io.secureflow.core.config;
 
+import io.secureflow.core.security.JwtUserBootstrapFilter;
 import io.secureflow.core.security.RbacPermissionEvaluator;
 import io.secureflow.core.security.TenantContextFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -28,20 +27,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final TenantContextFilter tenantContextFilter;
+    private final JwtUserBootstrapFilter jwtUserBootstrapFilter;
     private final RbacPermissionEvaluator permissionEvaluator;
 
-    public SecurityConfig(TenantContextFilter tenantContextFilter,
-                         RbacPermissionEvaluator permissionEvaluator) {
+    public SecurityConfig(
+            TenantContextFilter tenantContextFilter,
+            JwtUserBootstrapFilter jwtUserBootstrapFilter,
+            RbacPermissionEvaluator permissionEvaluator) {
         this.tenantContextFilter = tenantContextFilter;
+        this.jwtUserBootstrapFilter = jwtUserBootstrapFilter;
         this.permissionEvaluator = permissionEvaluator;
     }
 
-    /**
-     * Configura il PermissionEvaluator per @PreAuthorize("hasPermission(...)"). Spring
-     * Method Security usa questo handler per risolvere hasPermission; senza, non saprebbe
-     * a chi delegare. Usiamo principalmente @RequiresPermission (aspect), ma il bean
-     * serve per eventuale uso diretto di hasPermission.
-     */
     @Bean
     public MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
         var handler = new DefaultMethodSecurityExpressionHandler();
@@ -49,10 +46,21 @@ public class SecurityConfig {
         return handler;
     }
 
-    /**
-     * Chain 1: /internal/** — comunicazione M2M gateway→core. Autenticazione via
-     * X-Internal-Token nel controller (non JWT utente dashboard).
-     */
+    /** Evita doppia registrazione: questi filter vivono solo nella SecurityFilterChain. */
+    @Bean
+    FilterRegistrationBean<TenantContextFilter> tenantContextFilterRegistration(TenantContextFilter filter) {
+        FilterRegistrationBean<TenantContextFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
+
+    @Bean
+    FilterRegistrationBean<JwtUserBootstrapFilter> jwtUserBootstrapFilterRegistration(JwtUserBootstrapFilter filter) {
+        FilterRegistrationBean<JwtUserBootstrapFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
+
     @Bean
     @Order(1)
     public SecurityFilterChain internalSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -65,12 +73,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    /**
-     * Chain 2: /api/** — richiede JWT valido. addFilterBefore(TenantContextFilter): esegue
-     * prima del BearerTokenAuthenticationFilter così dopo la validazione JWT abbiamo il
-     * SecurityContext popolato e il TenantContextFilter può leggere il token. Session
-     * STATELESS: no cookie, ogni request deve avere Authorization: Bearer.
-     */
     @Bean
     @Order(2)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -82,13 +84,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(tenantContextFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(tenantContextFilter, BearerTokenAuthenticationFilter.class)
+                .addFilterAfter(jwtUserBootstrapFilter, TenantContextFilter.class)
                 .build();
     }
 
-    /**
-     * Chain 3: /actuator/** e OpenAPI — permitAll per health/probes e docs locali.
-     */
     @Bean
     @Order(3)
     public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -106,10 +106,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    /**
-     * Chain 4: default — cattura tutto il resto. Stessa config di /api ma per path non
-     * matched. Order 4: Spring valuta le chain in ordine; la prima che matcha vince.
-     */
     @Bean
     @Order(4)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -120,7 +116,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(tenantContextFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(tenantContextFilter, BearerTokenAuthenticationFilter.class)
+                .addFilterAfter(jwtUserBootstrapFilter, TenantContextFilter.class)
                 .build();
     }
 }

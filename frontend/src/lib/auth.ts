@@ -2,13 +2,14 @@
 
 import { User, UserManager, WebStorageStateStore } from "oidc-client-ts";
 
+/** Public origin is nginx http://localhost (UI + /auth + /core). */
 const authority =
-  process.env.NEXT_PUBLIC_KEYCLOAK_URL ?? "http://localhost:8180/auth/realms/secureflow";
+  process.env.NEXT_PUBLIC_KEYCLOAK_URL ?? "http://localhost/auth/realms/secureflow";
 const clientId = process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID ?? "secureflow-frontend";
 const redirectUri =
-  process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI ?? "http://localhost:3000/auth/callback";
+  process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI ?? "http://localhost/oidc/callback";
 const postLogoutRedirectUri =
-  process.env.NEXT_PUBLIC_OIDC_POST_LOGOUT_URI ?? "http://localhost:3000/";
+  process.env.NEXT_PUBLIC_OIDC_POST_LOGOUT_URI ?? "http://localhost/";
 
 let manager: UserManager | null = null;
 

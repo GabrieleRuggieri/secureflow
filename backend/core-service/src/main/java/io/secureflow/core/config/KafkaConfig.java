@@ -44,14 +44,10 @@ public class KafkaConfig {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "secureflow-core-audit");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, AuditEventDto.Message.class.getName());
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
 
+        // Configure JsonDeserializer via setters only (not also via consumer props).
         JsonDeserializer<AuditEventDto.Message> valueDeserializer =
                 new JsonDeserializer<>(AuditEventDto.Message.class, objectMapper);
         valueDeserializer.addTrustedPackages("*");

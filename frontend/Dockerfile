@@ -10,11 +10,12 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY frontend/ .
 ENV NEXT_TELEMETRY_DISABLED=1
-ARG NEXT_PUBLIC_CORE_API_URL=http://localhost:8081
-ARG NEXT_PUBLIC_KEYCLOAK_URL=http://localhost:8180/auth/realms/secureflow
+# Public URLs via nginx (:80) — single origin for UI + IdP + API
+ARG NEXT_PUBLIC_CORE_API_URL=http://localhost/core
+ARG NEXT_PUBLIC_KEYCLOAK_URL=http://localhost/auth/realms/secureflow
 ARG NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=secureflow-frontend
-ARG NEXT_PUBLIC_OIDC_REDIRECT_URI=http://localhost:3000/auth/callback
-ARG NEXT_PUBLIC_OIDC_POST_LOGOUT_URI=http://localhost:3000/
+ARG NEXT_PUBLIC_OIDC_REDIRECT_URI=http://localhost/oidc/callback
+ARG NEXT_PUBLIC_OIDC_POST_LOGOUT_URI=http://localhost/
 ENV NEXT_PUBLIC_CORE_API_URL=$NEXT_PUBLIC_CORE_API_URL
 ENV NEXT_PUBLIC_KEYCLOAK_URL=$NEXT_PUBLIC_KEYCLOAK_URL
 ENV NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=$NEXT_PUBLIC_KEYCLOAK_CLIENT_ID

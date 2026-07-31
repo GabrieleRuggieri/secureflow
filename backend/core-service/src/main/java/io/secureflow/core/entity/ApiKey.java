@@ -34,7 +34,7 @@ public class ApiKey {
     /** @ManyToOne Tenant: ogni ApiKey appartiene a un tenant. N:1. */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", nullable = false)
+    @JoinColumn(name = "tenant_id", nullable = false, columnDefinition = "BINARY(16)")
     private Tenant tenant;
 
     /**
@@ -70,7 +70,7 @@ public class ApiKey {
 
     /** @ManyToOne User: chi ha creato la chiave. Opzionale (es. creazione sistema). */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
+    @JoinColumn(name = "created_by", columnDefinition = "BINARY(16)")
     private User createdBy;
 
     @PrePersist

@@ -39,7 +39,7 @@ public class Role {
      */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", nullable = false)
+    @JoinColumn(name = "tenant_id", nullable = false, columnDefinition = "BINARY(16)")
     private Tenant tenant;
 
     /** Nome del ruolo (es. "admin", "operator"). Univoco per tenant. */
@@ -50,20 +50,11 @@ public class Role {
     @Column(length = 500)
     private String description;
 
-    /**
-     * @ManyToMany Permission: un Role ha molti Permission, un Permission può essere
-     * in molti Role. Relazione N:N richiede tabella di join.
-     * @JoinTable: crea/usare tabella role_permission con:
-     *   - joinColumns: colonna che punta a questa entity (role_id)
-     *   - inverseJoinColumns: colonna che punta all'altra (permission_id)
-     * LAZY: non carica i Permission finché non si accede a role.getPermissions().
-     * Importante: senza fetch esplicito, una query su Role non carica i Permission.
-     */
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "role_permission",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id")
+            joinColumns = @JoinColumn(name = "role_id", columnDefinition = "BINARY(16)"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id", columnDefinition = "BINARY(16)")
     )
     private Set<Permission> permissions = new HashSet<>();
 

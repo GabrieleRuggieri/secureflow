@@ -15,7 +15,7 @@
     "subtitle": "Salute delle richieste dagli eventi di audit persistiti.",
     "total": "Eventi totali",
     "success": "Tasso di successo",
-    "errors": "Errori",
+    "errors": "Fallimenti (4xx/5xx)",
     "latency": "Latenza media",
     "empty": "Nessun dato di audit. Invia traffico attraverso il gateway."
   },

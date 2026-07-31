@@ -19,4 +19,4 @@ logging:
 
 secureflow:
   jwt:
-    expected-issuer: http://localhost:8180/auth/realms/secureflow
+    expected-issuer: http://localhost/auth/realms/secureflow
