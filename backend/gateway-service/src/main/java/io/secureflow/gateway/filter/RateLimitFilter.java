@@ -26,7 +26,8 @@ public class RateLimitFilter implements WebFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String path = exchange.getRequest().getPath().value();
-        if (path.startsWith("/actuator") || path.equals("/health")) {
+        if (path.startsWith("/actuator") || path.equals("/health")
+                || path.startsWith("/swagger-ui") || path.startsWith("/api-docs") || path.startsWith("/v3/api-docs")) {
             return chain.filter(exchange);
         }
 

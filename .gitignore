@@ -16,3 +16,4 @@ Thumbs.db
 *.log
 logs/
 target/
+.netlify/

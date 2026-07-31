@@ -1,0 +1,22 @@
+# Profile docker — servizi reachabili sulla rete compose
+spring:
+  datasource:
+    url: jdbc:mysql://mysql:3306/secureflow
+    username: ${MYSQL_USER:secureflow}
+    password: ${MYSQL_PASSWORD:secureflow}
+  kafka:
+    bootstrap-servers: kafka:9092
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://keycloak:8080/auth/realms/secureflow/protocol/openid-connect/certs
+
+logging:
+  level:
+    io.secureflow: INFO
+    org.springframework.security: WARN
+
+secureflow:
+  jwt:
+    expected-issuer: http://localhost:8180/auth/realms/secureflow

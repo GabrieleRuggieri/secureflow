@@ -1,15 +1,11 @@
 # Core Service — Configurazione principale
-#
-# Datasource: MySQL su localhost:3306 (docker-compose). JWT da Keycloak su :8180.
-# Flyway: migration da classpath:db/migration (copiate da devops/flyway/sql in build).
-# ddl-auto: validate — lo schema è gestito da Flyway, Hibernate non modifica le tabelle.
 spring:
   application:
     name: core-service
   datasource:
-    url: jdbc:mysql://localhost:3306/secureflow
-    username: secureflow
-    password: secureflow
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/secureflow}
+    username: ${SPRING_DATASOURCE_USERNAME:secureflow}
+    password: ${SPRING_DATASOURCE_PASSWORD:secureflow}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -32,16 +28,38 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8180/auth/realms/secureflow
-          jwk-set-uri: http://localhost:8180/auth/realms/secureflow/protocol/openid-connect/certs
+          # JWKS only — issuer claim validated via JwtConfig (expected-issuer)
+          jwk-set-uri: ${JWK_SET_URI:http://localhost:8180/auth/realms/secureflow/protocol/openid-connect/certs}
 
 server:
   port: 8081
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
 logging:
   level:
-    io.secureflow: DEBUG
-    org.springframework.security: DEBUG
+    io.secureflow: ${SECUREFLOW_LOG_LEVEL:DEBUG}
+    org.springframework.security: WARN
 
 secureflow:
   webhook:
@@ -51,3 +69,6 @@ secureflow:
   audit:
     topic: audit-events
     consumer-enabled: true
+  jwt:
+    # When ISSUER_URI is blank, validate this claim against the token iss
+    expected-issuer: ${JWT_EXPECTED_ISSUER:http://localhost:8180/auth/realms/secureflow}

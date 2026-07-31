@@ -24,10 +24,12 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost/auth/realms/test
+          jwk-set-uri: http://localhost/auth/realms/test/protocol/openid-connect/certs
 
 secureflow:
   webhook:
     worker-enabled: false
   audit:
     consumer-enabled: false
+  jwt:
+    expected-issuer: http://localhost/auth/realms/test

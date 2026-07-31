@@ -86,14 +86,18 @@ public class SecurityConfig {
     }
 
     /**
-     * Chain 3: /actuator/** — permitAll per health check, readiness, liveness. I probe
-     * Kubernetes non hanno JWT; devono poter raggiungere /actuator/health senza 401.
+     * Chain 3: /actuator/** e OpenAPI — permitAll per health/probes e docs locali.
      */
     @Bean
     @Order(3)
     public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/actuator/**")
+                .securityMatcher(
+                        "/actuator/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/api-docs/**",
+                        "/v3/api-docs/**")
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
