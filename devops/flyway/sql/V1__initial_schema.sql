@@ -1,6 +1,9 @@
--- SecureFlow initial schema
--- Tenant isolation: every tenant-scoped table has tenant_id
-
+-- V1 — Schema iniziale SecureFlow
+--
+-- Definisce le tabelle per tenant, role, permission, user, role_assignment.
+-- Ogni tabella con dati tenant-scoped ha tenant_id; il filtro Hibernate applica
+-- WHERE tenant_id = :tenantId automaticamente. BINARY(16) per UUID (16 byte).
+-- role_permission: join Role-Permission ManyToMany.
 CREATE TABLE tenant (
     id BINARY(16) NOT NULL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,

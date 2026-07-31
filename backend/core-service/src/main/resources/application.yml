@@ -1,0 +1,42 @@
+# Core Service — Configurazione principale
+#
+# Datasource: MySQL su localhost:3306 (docker-compose). JWT da Keycloak su :8180.
+# Flyway: migration da classpath:db/migration (copiate da devops/flyway/sql in build).
+# ddl-auto: validate — lo schema è gestito da Flyway, Hibernate non modifica le tabelle.
+spring:
+  application:
+    name: core-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/secureflow
+    username: secureflow
+    password: secureflow
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/auth/realms/secureflow
+          jwk-set-uri: http://localhost:8180/auth/realms/secureflow/protocol/openid-connect/certs
+
+server:
+  port: 8081
+
+logging:
+  level:
+    io.secureflow: DEBUG
+    org.springframework.security: DEBUG
