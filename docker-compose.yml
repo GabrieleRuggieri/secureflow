@@ -36,8 +36,11 @@ services:
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      # PLAINTEXT: inter-container (kafka:9092). PLAINTEXT_HOST: apps on host (localhost:19092).
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:19092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -45,6 +48,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
     ports:
       - "9092:9092"
+      - "19092:19092"
       - "9093:9093"
     healthcheck:
       test: ["CMD", "/opt/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
@@ -61,7 +65,7 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
       KC_DB: mysql
-      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak
+      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak?allowPublicKeyRetrieval=true&useSSL=false
       KC_DB_USERNAME: ${MYSQL_USER:-secureflow}
       KC_DB_PASSWORD: ${MYSQL_PASSWORD:-secureflow}
       KC_HOSTNAME: localhost
@@ -91,6 +95,11 @@ services:
           --topic audit-events \
           --partitions 3 \
           --replication-factor 1
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic audit-events.DLT \
+          --partitions 3 \
+          --replication-factor 1
     profiles:
       - init
 
@@ -103,13 +112,82 @@ services:
     volumes:
       - ./devops/flyway/sql:/flyway/sql
     environment:
-      FLYWAY_URL: jdbc:mysql://mysql:3306/secureflow
+      FLYWAY_URL: jdbc:mysql://mysql:3306/secureflow?allowPublicKeyRetrieval=true&useSSL=false
       FLYWAY_USER: ${MYSQL_USER:-secureflow}
       FLYWAY_PASSWORD: ${MYSQL_PASSWORD:-secureflow}
       FLYWAY_BASELINE_ON_MIGRATE: "true"
     command: migrate
     profiles:
       - init
+
+  core-service:
+    build:
+      context: .
+      dockerfile: backend/core-service/Dockerfile
+    image: secureflow-core:local
+    container_name: secureflow-core
+    profiles: ["apps"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      MYSQL_USER: ${MYSQL_USER:-secureflow}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secureflow}
+      SECUREFLOW_INTERNAL_TOKEN: ${SECUREFLOW_INTERNAL_TOKEN:-secureflow-internal}
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8081/actuator/health/liveness || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: backend/gateway-service/Dockerfile
+    image: secureflow-gateway:local
+    container_name: secureflow-gateway
+    profiles: ["apps"]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SECUREFLOW_INTERNAL_TOKEN: ${SECUREFLOW_INTERNAL_TOKEN:-secureflow-internal}
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      core-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8080/actuator/health/liveness || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: secureflow-frontend:local
+    container_name: secureflow-frontend
+    profiles: ["apps"]
+    environment:
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+    ports:
+      - "3000:3000"
+    depends_on:
+      - core-service
 
   nginx:
     image: nginx:alpine
@@ -121,6 +199,8 @@ services:
       - ./devops/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - keycloak
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   mysql_data:

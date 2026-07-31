@@ -7,7 +7,7 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:19092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -26,6 +26,18 @@ management:
     health:
       probes:
         enabled: true
+      show-details: when_authorized
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
 
 secureflow:
   internal-token: ${SECUREFLOW_INTERNAL_TOKEN:secureflow-internal}
@@ -37,4 +49,4 @@ secureflow:
 
 logging:
   level:
-    io.secureflow: DEBUG
+    io.secureflow: ${SECUREFLOW_LOG_LEVEL:DEBUG}

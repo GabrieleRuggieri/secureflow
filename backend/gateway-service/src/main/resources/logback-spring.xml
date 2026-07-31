@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Structured JSON logging (same pattern as core-service). -->
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProfile name="json-logs | docker">
+        <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"service":"${SPRING_APPLICATION_NAME:-gateway-service}"}</customFields>
+            </encoder>
+        </appender>
+        <root level="${LOG_LEVEL:-INFO}">
+            <appender-ref ref="JSON"/>
+        </root>
+        <logger name="io.secureflow" level="${SECUREFLOW_LOG_LEVEL:-INFO}"/>
+    </springProfile>
+
+    <springProfile name="!json-logs &amp; !docker">
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="io.secureflow" level="DEBUG"/>
+    </springProfile>
+</configuration>

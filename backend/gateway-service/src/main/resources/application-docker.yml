@@ -1,0 +1,16 @@
+# Profile docker — Redis/Kafka/Core sulla rete compose
+spring:
+  data:
+    redis:
+      host: redis
+      port: 6379
+  kafka:
+    bootstrap-servers: kafka:9092
+
+secureflow:
+  core-service-url: http://core-service:8081
+  upstream-base-url: http://core-service:8081
+
+logging:
+  level:
+    io.secureflow: INFO
