@@ -45,3 +45,4 @@ secureflow:
   webhook:
     worker-enabled: true
     poll-interval-ms: 2000
+  internal-token: ${SECUREFLOW_INTERNAL_TOKEN:secureflow-internal}

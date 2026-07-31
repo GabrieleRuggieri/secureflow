@@ -50,18 +50,35 @@ public class SecurityConfig {
     }
 
     /**
-     * Chain 1: /api/** — richiede JWT valido. addFilterBefore(TenantContextFilter): esegue
+     * Chain 1: /internal/** — comunicazione M2M gateway→core. Autenticazione via
+     * X-Internal-Token nel controller (non JWT utente dashboard).
+     */
+    @Bean
+    @Order(1)
+    public SecurityFilterChain internalSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/internal/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
+    }
+
+    /**
+     * Chain 2: /api/** — richiede JWT valido. addFilterBefore(TenantContextFilter): esegue
      * prima del BearerTokenAuthenticationFilter così dopo la validazione JWT abbiamo il
      * SecurityContext popolato e il TenantContextFilter può leggere il token. Session
      * STATELESS: no cookie, ogni request deve avere Authorization: Bearer.
      */
     @Bean
-    @Order(1)
+    @Order(2)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}))
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(tenantContextFilter, UsernamePasswordAuthenticationFilter.class)
@@ -69,30 +86,32 @@ public class SecurityConfig {
     }
 
     /**
-     * Chain 2: /actuator/** — permitAll per health check, readiness, liveness. I probe
+     * Chain 3: /actuator/** — permitAll per health check, readiness, liveness. I probe
      * Kubernetes non hanno JWT; devono poter raggiungere /actuator/health senza 401.
      */
     @Bean
-    @Order(2)
+    @Order(3)
     public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/actuator/**")
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 
     /**
-     * Chain 3: default — cattura tutto il resto. Stessa config di /api ma per path non
-     * matched. Order 3: Spring valuta le chain in ordine; la prima che matcha vince.
+     * Chain 4: default — cattura tutto il resto. Stessa config di /api ma per path non
+     * matched. Order 4: Spring valuta le chain in ordine; la prima che matcha vince.
      */
     @Bean
-    @Order(3)
+    @Order(4)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}))
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(tenantContextFilter, UsernamePasswordAuthenticationFilter.class)

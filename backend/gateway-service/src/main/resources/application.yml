@@ -1,0 +1,40 @@
+# Gateway Service — pipeline reattiva
+spring:
+  application:
+    name: gateway-service
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+secureflow:
+  internal-token: ${SECUREFLOW_INTERNAL_TOKEN:secureflow-internal}
+  core-service-url: ${CORE_SERVICE_URL:http://localhost:8081}
+  upstream-base-url: ${UPSTREAM_BASE_URL:http://localhost:8081}
+  audit-topic: audit-events
+  api-key-cache-ttl-seconds: 60
+  rate-limit-window-ms: 60000
+
+logging:
+  level:
+    io.secureflow: DEBUG

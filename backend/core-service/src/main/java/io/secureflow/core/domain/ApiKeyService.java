@@ -8,6 +8,7 @@
 package io.secureflow.core.domain;
 
 import io.secureflow.core.dto.ApiKeyDto;
+import io.secureflow.core.dto.ApiKeyValidationDto;
 import io.secureflow.core.entity.ApiKey;
 import io.secureflow.core.entity.Tenant;
 import io.secureflow.core.entity.User;
@@ -151,6 +152,24 @@ public class ApiKeyService {
         return apiKeyRepository.findByKeyHash(sha256Hex(rawKey))
                 .map(ApiKey::isValid)
                 .orElse(false);
+    }
+
+    /**
+     * Validazione completa per il gateway: restituisce tenantId e rate limit se la chiave
+     * è valida. Chiamata senza TenantContext (lookup globale per hash).
+     */
+    @Transactional(readOnly = true)
+    public ApiKeyValidationDto.Response validateRawKey(String rawKey) {
+        return apiKeyRepository.findByKeyHash(sha256Hex(rawKey))
+                .filter(ApiKey::isValid)
+                .map(apiKey -> new ApiKeyValidationDto.Response(
+                        true,
+                        apiKey.getTenant().getId(),
+                        apiKey.getKeyPrefix(),
+                        apiKey.getTenant().getRateLimitPerMinute(),
+                        apiKey.getId()
+                ))
+                .orElseGet(ApiKeyValidationDto.Response::invalid);
     }
 
     private String generateRawKey() {
