@@ -22,16 +22,16 @@
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
       "redirectUris": [
-        "http://localhost:3000/*",
-        "http://localhost/*"
+        "http://localhost/*",
+        "http://localhost:3000/*"
       ],
       "webOrigins": [
-        "http://localhost:3000",
-        "http://localhost"
+        "http://localhost",
+        "http://localhost:3000"
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:3000/*##http://localhost/*"
+        "post.logout.redirect.uris": "http://localhost/*##http://localhost:3000/*"
       },
       "protocolMappers": [
         {
@@ -91,7 +91,7 @@
         {
           "type": "password",
           "value": "admin",
-          "temporary": true
+          "temporary": false
         }
       ],
       "realmRoles": ["admin", "user"],

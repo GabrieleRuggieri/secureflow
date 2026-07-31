@@ -58,7 +58,7 @@ services:
       start_period: 120s
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0.0
+    image: quay.io/keycloak/keycloak:26.6.4
     container_name: secureflow-keycloak
     command: ["start", "--import-realm"]
     environment:
@@ -70,8 +70,10 @@ services:
       KC_DB_PASSWORD: ${MYSQL_PASSWORD:-secureflow}
       KC_HOSTNAME: localhost
       KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
       KC_HTTP_ENABLED: "true"
       KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY_HEADERS: xforwarded
       KC_HEALTH_ENABLED: "true"
     ports:
       - "8180:8080"
@@ -184,8 +186,9 @@ services:
     environment:
       PORT: 3000
       HOSTNAME: 0.0.0.0
-    ports:
-      - "3000:3000"
+    # Internal only — browser entrypoint is nginx :80 (single origin for OIDC).
+    expose:
+      - "3000"
     depends_on:
       - core-service
 
@@ -194,7 +197,6 @@ services:
     container_name: secureflow-nginx
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - ./devops/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:

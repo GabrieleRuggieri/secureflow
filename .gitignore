@@ -20,3 +20,6 @@ target/
 node_modules/
 frontend/.next/
 frontend/out/
+
+# Local TLS private key (cert may be committed for local-dev trust docs)
+devops/nginx/certs/*.key

@@ -51,39 +51,40 @@ cd backend/gateway-service && mvn spring-boot:run
 
 ## Endpoints
 
+Public browser origin: **http://localhost** (nginx). UI, Keycloak (`/auth`), and APIs share that origin.
+
+Requires **Keycloak ≥ 26.0.1** so Safari accepts login cookies on HTTP localhost (no certificate trust step).
+
 | URL | Description |
 |-----|-------------|
-| http://localhost:3000 | Dashboard Next.js (IT/EN toggle) |
+| http://localhost | Dashboard |
 | http://localhost/auth/admin | Keycloak admin (`admin` / `admin`) |
-| http://localhost:8081/actuator/health | Core liveness/readiness |
-| http://localhost:8080/actuator/health | Gateway health |
-| http://localhost:8081/swagger-ui.html | Core OpenAPI UI |
-| http://localhost:8080/swagger-ui.html | Gateway OpenAPI UI |
-| http://localhost/core/api/... | Core API via Nginx |
-| http://localhost/gw/... | Gateway proxy via Nginx |
+| http://localhost/core/api/... | Core API |
+| http://localhost/gw/... | Gateway proxy |
+| http://localhost:8081/actuator/health | Core health (direct, ops) |
+| http://localhost:8080/actuator/health | Gateway health (direct, ops) |
 
-### Frontend (host)
+### Frontend (host-dev)
 
 ```bash
-cd frontend
-cp .env.example .env.local
-npm install
-npm run dev
+docker compose -f docker-compose.yml -f docker-compose.host-dev.yml up -d
+cd frontend && cp .env.example .env.local && npm install && npm run dev
 ```
 
-Sign-in uses Keycloak PKCE (`secureflow-frontend`).
+Open **http://localhost**. Sign-in: `admin` / `admin` (PKCE client `secureflow-frontend`).
 
 ## Ports
 
 | Service | Host port |
 |---------|-----------|
-| Nginx | 80, 443 |
+| Nginx (public UI + IdP + API) | 80 |
 | MySQL | 3306 |
 | Redis | 6379 |
 | Kafka | 19092 (host apps) / 9092 (docker network) |
-| Keycloak | 8180 |
-| Gateway | 8080 |
-| Core | 8081 |
+| Keycloak | 8180 (ops; prefer `/auth` via nginx) |
+| Gateway | 8080 (ops; prefer `/gw`) |
+| Core | 8081 (ops; prefer `/core`) |
+| Frontend | internal only (via nginx) |
 
 ## Configuration
 

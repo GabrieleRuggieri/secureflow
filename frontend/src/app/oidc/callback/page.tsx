@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getUserManager } from "@/lib/auth";
 
-export default function AuthCallbackPage() {
+/**
+ * OIDC redirect callback. Path is /oidc/callback (not /auth/*) so nginx can
+ * keep /auth/ reserved for Keycloak on the same origin.
+ */
+export default function OidcCallbackPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 

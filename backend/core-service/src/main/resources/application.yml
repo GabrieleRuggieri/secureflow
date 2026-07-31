@@ -71,4 +71,4 @@ secureflow:
     consumer-enabled: true
   jwt:
     # When ISSUER_URI is blank, validate this claim against the token iss
-    expected-issuer: ${JWT_EXPECTED_ISSUER:http://localhost:8180/auth/realms/secureflow}
+    expected-issuer: ${JWT_EXPECTED_ISSUER:http://localhost/auth/realms/secureflow}

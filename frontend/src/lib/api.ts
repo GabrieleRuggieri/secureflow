@@ -1,6 +1,6 @@
 "use client";
 
-const CORE_API = process.env.NEXT_PUBLIC_CORE_API_URL ?? "http://localhost:8081";
+const CORE_API = process.env.NEXT_PUBLIC_CORE_API_URL ?? "http://localhost/core";
 
 export class ApiError extends Error {
   constructor(

@@ -2,7 +2,7 @@
  * JwtConfig — Decoder JWT con JWKS e issuer atteso (Keycloak hostname browser).
  *
  * In Docker il JWK set si scarica da keycloak:8080, ma i token hanno
- * iss=http://localhost:8180/... (KC_HOSTNAME). Disabilitato in profile test
+ * iss=http://localhost/auth/... (KC_HOSTNAME dietro nginx). Disabilitato in profile test
  * (i test forniscono un JwtDecoder mock).
  */
 package io.secureflow.core.config;

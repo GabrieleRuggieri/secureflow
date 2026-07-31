@@ -1,0 +1,15 @@
+# Host-dev overlay: apps run on the host (npm / mvn), nginx still is the only browser origin.
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.host-dev.yml up -d
+#   then: npm run dev / mvn spring-boot:run on the host
+#
+# Browser: http://localhost  (not :3000)
+
+services:
+  nginx:
+    volumes:
+      - ./devops/nginx/nginx.host-dev.conf:/etc/nginx/nginx.conf:ro
+
+  # Frontend is served from the host; do not start the container.
+  frontend:
+    profiles: ["host-dev-disabled"]
