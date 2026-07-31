@@ -26,6 +26,8 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     baseline-version: 0
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:19092}
   security:
     oauth2:
       resourceserver:
@@ -46,3 +48,6 @@ secureflow:
     worker-enabled: true
     poll-interval-ms: 2000
   internal-token: ${SECUREFLOW_INTERNAL_TOKEN:secureflow-internal}
+  audit:
+    topic: audit-events
+    consumer-enabled: true

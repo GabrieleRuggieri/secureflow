@@ -2,7 +2,7 @@
  * Package delle entità JPA del Core Service.
  *
  * FilterDef "tenantFilter": definito una sola volta a livello package per evitare duplicati.
- * Usato da Role, Permission, User, RoleAssignment, ApiKey. Il parametro tenantId viene
+ * Usato da Role, Permission, User, RoleAssignment, ApiKey, AuditEvent. Il parametro tenantId viene
  * impostato da TenantFilterEntityManagerFactory all'apertura di ogni EntityManager.
  */
 @org.hibernate.annotations.FilterDef(
