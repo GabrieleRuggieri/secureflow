@@ -15,12 +15,15 @@ import io.secureflow.core.repository.RoleRepository;
 import io.secureflow.core.repository.TenantRepository;
 import io.secureflow.core.repository.UserRepository;
 import io.secureflow.core.security.TenantContext;
+import io.secureflow.core.webhook.WebhookDispatcher;
+import io.secureflow.core.webhook.WebhookEventType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,6 +35,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final TenantRepository tenantRepository;
+    private final WebhookDispatcher webhookDispatcher;
 
     /**
      * Elenca gli utenti del tenant corrente. TenantContext.getTenantId() dal JWT (filter).
@@ -89,6 +93,12 @@ public class UserService {
             }
             user = userRepository.save(user);
         }
+
+        webhookDispatcher.dispatch(tenantId, WebhookEventType.USER_CREATED, Map.of(
+                "userId", user.getId().toString(),
+                "email", user.getEmail(),
+                "username", user.getUsername()
+        ));
         return toDto(user);
     }
 

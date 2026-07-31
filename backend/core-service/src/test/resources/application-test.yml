@@ -15,3 +15,12 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
   flyway:
     enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost/auth/realms/test
+
+secureflow:
+  webhook:
+    worker-enabled: false

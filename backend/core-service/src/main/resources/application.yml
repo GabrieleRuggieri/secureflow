@@ -40,3 +40,8 @@ logging:
   level:
     io.secureflow: DEBUG
     org.springframework.security: DEBUG
+
+secureflow:
+  webhook:
+    worker-enabled: true
+    poll-interval-ms: 2000
