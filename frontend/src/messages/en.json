@@ -1,0 +1,69 @@
+{
+  "brand": "SecureFlow",
+  "tagline": "Control who hits your APIs, what they can do, and how often.",
+  "login": "Sign in",
+  "logout": "Sign out",
+  "nav": {
+    "dashboard": "Dashboard",
+    "tenants": "Tenants",
+    "rbac": "Roles & permissions",
+    "apiKeys": "API keys",
+    "audit": "Audit log"
+  },
+  "dashboard": {
+    "title": "Operations overview",
+    "subtitle": "Request health derived from persisted audit events.",
+    "total": "Total events",
+    "success": "Success rate",
+    "errors": "Errors",
+    "latency": "Avg latency",
+    "empty": "No audit data yet. Send traffic through the gateway."
+  },
+  "tenants": {
+    "title": "Tenants",
+    "subtitle": "Organizations isolated by tenant_id.",
+    "create": "Create tenant",
+    "name": "Name",
+    "slug": "Slug",
+    "rate": "Rate limit / min",
+    "save": "Save"
+  },
+  "rbac": {
+    "title": "RBAC",
+    "subtitle": "Roles, permissions, and assignments for the current tenant.",
+    "roles": "Roles",
+    "permissions": "Permissions",
+    "users": "Users"
+  },
+  "apiKeys": {
+    "title": "API keys",
+    "subtitle": "Generate, revoke, and rotate machine credentials.",
+    "create": "Generate key",
+    "name": "Name",
+    "revoke": "Revoke",
+    "rotate": "Rotate",
+    "once": "Copy this key now — it will not be shown again.",
+    "prefix": "Prefix",
+    "status": "Status",
+    "valid": "Valid",
+    "revoked": "Revoked"
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "Historical events with optional live SSE stream.",
+    "live": "Live stream",
+    "outcome": "Outcome",
+    "all": "All",
+    "method": "Method",
+    "path": "Path",
+    "status": "Status",
+    "duration": "Duration",
+    "when": "When"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "refresh": "Refresh",
+    "language": "Language"
+  }
+}

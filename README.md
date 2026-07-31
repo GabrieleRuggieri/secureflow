@@ -53,6 +53,7 @@ cd backend/gateway-service && mvn spring-boot:run
 
 | URL | Description |
 |-----|-------------|
+| http://localhost:3000 | Dashboard Next.js (IT/EN toggle) |
 | http://localhost/auth/admin | Keycloak admin (`admin` / `admin`) |
 | http://localhost:8081/actuator/health | Core liveness/readiness |
 | http://localhost:8080/actuator/health | Gateway health |
@@ -61,7 +62,16 @@ cd backend/gateway-service && mvn spring-boot:run
 | http://localhost/core/api/... | Core API via Nginx |
 | http://localhost/gw/... | Gateway proxy via Nginx |
 
-**Keycloak realm:** `secureflow` · clients: `secureflow-frontend` (PKCE), `secureflow-core` (M2M)
+### Frontend (host)
+
+```bash
+cd frontend
+cp .env.example .env.local
+npm install
+npm run dev
+```
+
+Sign-in uses Keycloak PKCE (`secureflow-frontend`).
 
 ## Ports
 

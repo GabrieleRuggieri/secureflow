@@ -40,6 +40,24 @@ jobs:
         run: docker build -f backend/core-service/Dockerfile -t secureflow-core:ci .
       - name: Build gateway-service image
         run: docker build -f backend/gateway-service/Dockerfile -t secureflow-gateway:ci .
+      - name: Build frontend image
+        run: docker build -f frontend/Dockerfile -t secureflow-frontend:ci .
+
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
 
   compose-infra:
     name: Compose infra smoke
