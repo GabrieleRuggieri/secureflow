@@ -1,0 +1,69 @@
+{
+  "brand": "SecureFlow",
+  "tagline": "Controlla chi raggiunge le tue API, con quali permessi e con quali limiti.",
+  "login": "Accedi",
+  "logout": "Esci",
+  "nav": {
+    "dashboard": "Dashboard",
+    "tenants": "Tenant",
+    "rbac": "Ruoli e permessi",
+    "apiKeys": "API key",
+    "audit": "Audit log"
+  },
+  "dashboard": {
+    "title": "Panoramica operativa",
+    "subtitle": "Salute delle richieste dagli eventi di audit persistiti.",
+    "total": "Eventi totali",
+    "success": "Tasso di successo",
+    "errors": "Errori",
+    "latency": "Latenza media",
+    "empty": "Nessun dato di audit. Invia traffico attraverso il gateway."
+  },
+  "tenants": {
+    "title": "Tenant",
+    "subtitle": "Organizzazioni isolate per tenant_id.",
+    "create": "Crea tenant",
+    "name": "Nome",
+    "slug": "Slug",
+    "rate": "Rate limit / min",
+    "save": "Salva"
+  },
+  "rbac": {
+    "title": "RBAC",
+    "subtitle": "Ruoli, permessi e assegnazioni del tenant corrente.",
+    "roles": "Ruoli",
+    "permissions": "Permessi",
+    "users": "Utenti"
+  },
+  "apiKeys": {
+    "title": "API key",
+    "subtitle": "Genera, revoca e ruota le credenziali machine-to-machine.",
+    "create": "Genera chiave",
+    "name": "Nome",
+    "revoke": "Revoca",
+    "rotate": "Ruota",
+    "once": "Copia subito questa chiave — non verrà più mostrata.",
+    "prefix": "Prefisso",
+    "status": "Stato",
+    "valid": "Valida",
+    "revoked": "Revocata"
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "Eventi storici con stream SSE opzionale in tempo reale.",
+    "live": "Stream live",
+    "outcome": "Esito",
+    "all": "Tutti",
+    "method": "Metodo",
+    "path": "Path",
+    "status": "Status",
+    "duration": "Durata",
+    "when": "Quando"
+  },
+  "common": {
+    "loading": "Caricamento…",
+    "error": "Qualcosa è andato storto",
+    "refresh": "Aggiorna",
+    "language": "Lingua"
+  }
+}

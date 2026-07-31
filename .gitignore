@@ -17,3 +17,6 @@ Thumbs.db
 logs/
 target/
 .netlify/
+node_modules/
+frontend/.next/
+frontend/out/
