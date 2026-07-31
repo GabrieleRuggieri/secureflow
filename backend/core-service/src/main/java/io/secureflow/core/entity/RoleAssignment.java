@@ -47,30 +47,21 @@ public class RoleAssignment {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, columnDefinition = "BINARY(16)")
     private User user;
 
-    /**
-     * @ManyToOne Role: questa assegnazione assegna un ruolo. @MapsId("roleId"): come
-     * sopra, role.getId() popola roleId nell'EmbeddedId. La tabella role_assignment
-     * ha (user_id, role_id) come PK e come FKs verso user e role.
-     */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("roleId")
-    @JoinColumn(name = "role_id", nullable = false)
+    @JoinColumn(name = "role_id", nullable = false, columnDefinition = "BINARY(16)")
     private Role role;
 
     /** Quando è stata effettuata l'assegnazione. updatable=false: immutabile. */
     @Column(name = "assigned_at", nullable = false, updatable = false)
     private Instant assignedAt;
 
-    /**
-     * @ManyToOne assignedBy: opzionale, chi ha assegnato il ruolo (audit). Nullable:
-     * le assegnazioni iniziali possono non avere un "assigner". FK a user.
-     */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_by")
+    @JoinColumn(name = "assigned_by", columnDefinition = "BINARY(16)")
     private User assignedBy;
 
     /**

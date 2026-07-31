@@ -90,12 +90,12 @@ services:
     entrypoint: ["/bin/bash", "-c"]
     command:
       - |
-        kafka-topics --create --if-not-exists \
+        /opt/kafka/bin/kafka-topics.sh --create --if-not-exists \
           --bootstrap-server kafka:9092 \
           --topic audit-events \
           --partitions 3 \
           --replication-factor 1
-        kafka-topics --create --if-not-exists \
+        /opt/kafka/bin/kafka-topics.sh --create --if-not-exists \
           --bootstrap-server kafka:9092 \
           --topic audit-events.DLT \
           --partitions 3 \
