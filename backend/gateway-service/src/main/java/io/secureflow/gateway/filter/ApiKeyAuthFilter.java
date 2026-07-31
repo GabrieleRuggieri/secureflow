@@ -34,13 +34,22 @@ public class ApiKeyAuthFilter implements WebFilter, Ordered {
 
         String apiKey = exchange.getRequest().getHeaders().getFirst(API_KEY_HEADER);
         if (apiKey == null || apiKey.isBlank()) {
+            exchange.getAttributes().put(GatewayAttributes.KEY_PREFIX, "missing");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
+        exchange.getAttributes().put(GatewayAttributes.KEY_PREFIX, abbreviatePrefix(apiKey.trim()));
+
         return coreServiceClient.validate(apiKey.trim())
                 .flatMap(result -> {
                     if (!result.valid()) {
+                        if (result.keyPrefix() != null) {
+                            exchange.getAttributes().put(GatewayAttributes.KEY_PREFIX, result.keyPrefix());
+                        }
+                        if (result.tenantId() != null) {
+                            exchange.getAttributes().put(GatewayAttributes.TENANT_ID, result.tenantId());
+                        }
                         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                         return exchange.getResponse().setComplete();
                     }
@@ -51,6 +60,10 @@ public class ApiKeyAuthFilter implements WebFilter, Ordered {
                     exchange.getAttributes().put(GatewayAttributes.RATE_LIMIT, result.rateLimitPerMinute());
                     return chain.filter(exchange);
                 });
+    }
+
+    private static String abbreviatePrefix(String rawKey) {
+        return rawKey.length() <= 20 ? rawKey : rawKey.substring(0, 20);
     }
 
     private boolean isPublic(String path) {

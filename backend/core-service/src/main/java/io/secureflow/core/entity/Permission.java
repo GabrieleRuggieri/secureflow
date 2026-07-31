@@ -34,7 +34,7 @@ public class Permission {
     /** @ManyToOne Tenant: ogni Permission appartiene a un tenant. N:1, FK in permission. */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", nullable = false)
+    @JoinColumn(name = "tenant_id", nullable = false, columnDefinition = "BINARY(16)")
     private Tenant tenant;
 
     /**

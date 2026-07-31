@@ -15,7 +15,7 @@
     "subtitle": "Request health derived from persisted audit events.",
     "total": "Total events",
     "success": "Success rate",
-    "errors": "Errors",
+    "errors": "Failures (4xx/5xx)",
     "latency": "Avg latency",
     "empty": "No audit data yet. Send traffic through the gateway."
   },

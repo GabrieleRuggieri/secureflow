@@ -36,7 +36,7 @@ public class AuditEvent {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", nullable = false)
+    @JoinColumn(name = "tenant_id", nullable = false, columnDefinition = "BINARY(16)")
     private Tenant tenant;
 
     @Column(name = "key_prefix", length = 20)
