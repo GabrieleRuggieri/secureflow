@@ -38,7 +38,7 @@ docker compose --profile init up -d
 |----------|-------|-------------|
 | MySQL 8.4 | 3306 | Database (secureflow + keycloak) |
 | Redis 8 | 6379 | Cache e rate limiting |
-| Kafka 4.x (KRaft) | 9092 | Messaging per audit events |
+| Kafka 4.x (KRaft) | 19092 (host) / 9092 (docker) | Messaging per audit events |
 | Keycloak 26 | 8180 | Identity Provider |
 | Nginx | 80, 443 | Reverse proxy |
 
@@ -55,5 +55,6 @@ docker compose --profile init up -d
 docker exec secureflow-mysql mysql -u secureflow -psecureflow -e "SHOW DATABASES;"
 docker exec secureflow-redis redis-cli ping
 docker exec secureflow-kafka kafka-broker-api-versions --bootstrap-server localhost:9092
+# Da host: localhost:19092 (listener PLAINTEXT_HOST)
 curl -s http://localhost/auth/health/ready
 ```
