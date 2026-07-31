@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Local: console pattern. Docker/json-logs: one JSON object per line (LogstashEncoder).
+-->
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProfile name="json-logs | docker">
+        <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeMdcKeyName>tenantId</includeMdcKeyName>
+                <customFields>{"service":"${SPRING_APPLICATION_NAME:-core-service}"}</customFields>
+            </encoder>
+        </appender>
+        <root level="${LOG_LEVEL:-INFO}">
+            <appender-ref ref="JSON"/>
+        </root>
+        <logger name="io.secureflow" level="${SECUREFLOW_LOG_LEVEL:-INFO}"/>
+        <logger name="org.springframework.security" level="WARN"/>
+    </springProfile>
+
+    <springProfile name="!json-logs &amp; !docker">
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="io.secureflow" level="DEBUG"/>
+        <logger name="org.springframework.security" level="DEBUG"/>
+    </springProfile>
+</configuration>

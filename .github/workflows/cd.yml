@@ -1,0 +1,33 @@
+name: CD (local images)
+
+# No Docker Hub — images are built and tagged locally for self-hosted deploys.
+on:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  build-images:
+    name: Build & tag local images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build images
+        run: |
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          docker build -f backend/core-service/Dockerfile \
+            -t "secureflow-core:local" \
+            -t "secureflow-core:${SHORT_SHA}" .
+          docker build -f backend/gateway-service/Dockerfile \
+            -t "secureflow-gateway:local" \
+            -t "secureflow-gateway:${SHORT_SHA}" .
+      - name: Save images as artifacts
+        run: |
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          docker save "secureflow-core:${SHORT_SHA}" "secureflow-gateway:${SHORT_SHA}" \
+            | gzip > "secureflow-images-${SHORT_SHA}.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: secureflow-images
+          path: secureflow-images-*.tar.gz
+          retention-days: 7

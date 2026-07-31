@@ -54,7 +54,11 @@ public class ApiKeyAuthFilter implements WebFilter, Ordered {
     }
 
     private boolean isPublic(String path) {
-        return path.startsWith("/actuator") || path.equals("/health");
+        return path.startsWith("/actuator")
+                || path.equals("/health")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/api-docs")
+                || path.startsWith("/v3/api-docs");
     }
 
     @Override
