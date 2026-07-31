@@ -37,16 +37,29 @@ public class AuditWebFilter implements WebFilter, Ordered {
     }
 
     private void publishAudit(ServerWebExchange exchange) {
-        UUID tenantId = GatewayAttributes.asUuid(exchange.getAttribute(GatewayAttributes.TENANT_ID));
-        if (tenantId == null) {
-            return;
-        }
         Long start = exchange.getAttribute(GatewayAttributes.START_NANOS);
         long durationMs = start != null ? (System.nanoTime() - start) / 1_000_000L : 0L;
         HttpStatusCode status = exchange.getResponse().getStatusCode();
         int statusCode = status != null ? status.value() : 500;
-        String outcome = statusCode >= 500 ? "error" : statusCode == 429 ? "rate_limited" : statusCode >= 400 ? "denied" : "success";
+        String outcome = statusCode >= 500 ? "error"
+                : statusCode == 429 ? "rate_limited"
+                : statusCode >= 400 ? "denied"
+                : "success";
+
+        UUID tenantId = GatewayAttributes.asUuid(exchange.getAttribute(GatewayAttributes.TENANT_ID));
         String keyPrefix = exchange.getAttribute(GatewayAttributes.KEY_PREFIX);
+
+        // Auth failures never set tenantId (invalid/missing key). Still audit as denied
+        // on the bootstrap default tenant so the dashboard shows 401 attempts.
+        if (tenantId == null) {
+            if (statusCode != 401 && statusCode != 403) {
+                return;
+            }
+            tenantId = DEFAULT_AUDIT_TENANT;
+            if (keyPrefix == null || keyPrefix.isBlank()) {
+                keyPrefix = "unknown";
+            }
+        }
 
         auditEventPublisher.publish(AuditEvent.of(
                 tenantId,
@@ -58,6 +71,10 @@ public class AuditWebFilter implements WebFilter, Ordered {
                 outcome
         ));
     }
+
+    /** Same UUID as Flyway V3 default-tenant — used only for unauthenticated denials. */
+    private static final UUID DEFAULT_AUDIT_TENANT =
+            UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Override
     public int getOrder() {

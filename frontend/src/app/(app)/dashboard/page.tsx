@@ -22,7 +22,14 @@ export default function DashboardPage() {
     const events = data?.content ?? [];
     const total = events.length;
     const success = events.filter((e) => e.outcome === "success").length;
-    const errors = events.filter((e) => e.outcome === "error" || e.status >= 500).length;
+    // Include auth denials (401) and rate limits — not only 5xx "error" outcomes.
+    const errors = events.filter(
+      (e) =>
+        e.outcome === "error" ||
+        e.outcome === "denied" ||
+        e.outcome === "rate_limited" ||
+        e.status >= 400,
+    ).length;
     const avgLatency =
       total === 0 ? 0 : Math.round(events.reduce((sum, e) => sum + e.durationMs, 0) / total);
     const successRate = total === 0 ? 0 : Math.round((success / total) * 100);
